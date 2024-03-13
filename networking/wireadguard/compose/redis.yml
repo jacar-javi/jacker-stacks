@@ -1,0 +1,10 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      default:
+    command: redis-server --save 60 1
+    volumes:
+      - $DOCKERDIR/stacks/wireadguard/data/redis:/data

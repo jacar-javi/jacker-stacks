@@ -1,0 +1,43 @@
+services:
+  wg-easy:
+    container_name: wg-easy
+    image: ghcr.io/wg-easy/wg-easy:nightly
+    restart: unless-stopped
+    networks:
+      default:
+        ipv4_address: $WG_IP
+        priority: 10
+      traefik_proxy:
+        ipv4_address: $WG_TRAEFIK_SUBNET_IP
+        priority: 20
+    ports:
+      - $WG_PORT:51820/udp   # wiregaurd port
+    environment:
+      - LANG=es
+      - WG_HOST=vpn.$PUBLIC_FQDN
+      - WG_DEFAULT_ADDRESS=$WG_DEFAULT_ADDRESS
+      - WG_DEFAULT_DNS=$ADGUARD_IP
+      - WG_ALLOWED_IPS=$WG_VPN_NETWORK,$PRIVATE_NETWORK,$WG_ALLOWED_IPS
+      - WG_PERSISTENT_KEEPALIVE=$WG_PERSISTENT_KEEPALIVE
+      - WG_DEVICE=$WG_DEVICE
+      - UI_TRAFFIC_STATS=true
+      - WG_POST_UP=iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth+ -j MASQUERADE
+      - WG_POST_DOWN=iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth+ -j MASQUERADE
+    volumes:
+      - $DOCKERDIR/stacks/wireadguard/data/wireguard:/etc/wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.wg-easy-rtr.entrypoints=websecure"
+      - "traefik.http.routers.wg-easy-rtr.rule=Host(`wg-easy.$PUBLIC_FQDN`)"
+      # Middlewares
+      - "traefik.http.routers.wg-easy-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.wg-easy-rtr.service=wg-easy-svc"
+      - "traefik.http.services.wg-easy-svc.loadbalancer.server.port=51821"
