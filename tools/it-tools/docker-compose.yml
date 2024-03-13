@@ -1,0 +1,12 @@
+version: "3.9"
+
+# Jacker Stack docker-composer.yml base template
+################################################
+
+# Declare Networks used by stack
+
+networks:
+  traefik_proxy:
+    external: true
+include:
+  - compose/it-tools.yml
