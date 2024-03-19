@@ -1,0 +1,32 @@
+services:
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - wordpress
+      - mariadb
+    links:
+      - wordpress
+    networks:
+      - traefik_proxy
+      - default
+    environment:
+      - TZ=$TZ
+    volumes:
+      - ../data/nginx:/etc/nginx
+      - ../data/html:/var/www/html
+      - ../../../logs/nginx:/var/log/nginx
+      - ../assets/stack_config:/docker-entrypoint.d
+    labels:
+      # Traefik configuration
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.${TRAEFIK_LABEL}-rtr.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_LABEL}-rtr.rule=Host(`$HOSTNAME`)"
+      # Middlewares
+      - "traefik.http.routers.${TRAEFIK_LABEL}-rtr.middlewares=chain-no-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.${TRAEFIK_LABEL}-rtr.service=${TRAEFIK_LABEL}-svc"
+      - "traefik.http.services.${TRAEFIK_LABEL}-svc.loadbalancer.server.port=80"

@@ -24,7 +24,7 @@ services:
       - WG_POST_UP=iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth+ -j MASQUERADE
       - WG_POST_DOWN=iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth+ -j MASQUERADE
     volumes:
-      - $DOCKERDIR/stacks/wireadguard/data/wireguard:/etc/wireguard
+      - ../data/wireguard:/etc/wireguard
     cap_add:
       - NET_ADMIN
       - SYS_MODULE

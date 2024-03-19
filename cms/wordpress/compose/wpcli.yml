@@ -1,0 +1,15 @@
+services:
+  wpcli:
+    image: wordpress:cli
+    user: $PUID:$PGID
+    depends_on:
+      - wordpress
+    command: tail -f /dev/null
+    volumes:
+      - ../data/html:/var/www/html
+      - ../data/wp-cli:/.wp-cli
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_NAME: $MYSQL_DATABASE
+      WORDPRESS_DB_USER: $MYSQL_USER
+      WORDPRESS_DB_PASSWORD: $MYSQL_PASSWORD

@@ -1,0 +1,10 @@
+services:
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ../data/redis:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro

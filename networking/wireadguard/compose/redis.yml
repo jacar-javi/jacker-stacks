@@ -7,4 +7,4 @@ services:
       default:
     command: redis-server --save 60 1
     volumes:
-      - $DOCKERDIR/stacks/wireadguard/data/redis:/data
+      - ../wireadguard/data/redis:/data

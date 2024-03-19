@@ -8,8 +8,8 @@ services:
         ipv4_address: $ADGUARD_IP
       traefik_proxy:
     volumes:
-      - $DOCKERDIR/stacks/wireadguard/data/adguard/work:/opt/adguardhome/work
-      - $OCKERDIR/stacks/wireadguard/data/adguard/conf:/opt/adguardhome/conf
+      - ../data/adguard/work:/opt/adguardhome/work
+      - ../data/adguard/conf:/opt/adguardhome/conf
     labels:
       - "traefik.enable=true"
       # HTTP Routers
