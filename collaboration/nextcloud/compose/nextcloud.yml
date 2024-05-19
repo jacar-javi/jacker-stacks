@@ -1,0 +1,34 @@
+services:
+  nextcloud-app:
+    image: nextcloud:production-fpm-alpine
+    restart: unless-stopped
+    volumes:
+      - $DATADIR/nextcloud/html:/var/www/html:z
+      - $DATADIR/nextcloud/custom_apps:/var/www/html/custom_apps:z
+      - $DATADIR/nextcloud/config:/var/www/html/config:z
+      - $DATADIR/nextcloud/user-data:/var/www/html/data:z
+      - $DATADIR/nextcloud/themes:/var/www/html/themes:z
+      - $DATADIR/nextcloud/php/php.ini:/usr/local/etc/php/php.ini
+      - $DATADIR/nextcloud/log/nextcloud.log:/var/www/html/data/nextcloud.log
+    environment:
+      - REDIS_HOST=redis
+      - MYSQL_HOST=mariadb
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - MYSQL_USER=$MYSQL_USER
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - TRUSTED_PROXIES=$LOCAL_IPS
+#      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud.jacarsystems.net
+#      - OVERWRITEPROTOCOL=https
+    depends_on:
+      - mariadb
+      - redis
+  nextcloud-cron:
+    image: nextcloud:production-fpm-alpine
+    restart: unless-stopped
+    volumes_from:
+      - nextcloud-app
+    entrypoint: /cron.sh
+    depends_on:
+      - nextcloud-app
+      - mariadb
+      - redis

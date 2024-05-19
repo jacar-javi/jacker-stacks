@@ -1,0 +1,43 @@
+services:
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+      - default
+    volumes:
+      - $DATADIR/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - $DATADIR/nginx/conf.d/uploadsize.conf:/etc/nginx/conf.d/uploadsize.conf
+      - $DATADIR/log:/var/log/nginx
+    volumes_from:
+      - nextcloud-app
+    depends_on:
+      - nextcloud-app
+    links:
+      - nextcloud-app
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.nextcloud-rtr.entrypoints=websecure"
+      - "traefik.http.routers.nextcloud-rtr.rule=Host(`nextcloud.box2.jacarsystems.net`)"
+      # Middlewares
+      - "traefik.http.routers.nextcloud-rtr.middlewares=nextcloud,nextcloud-red,chain-no-auth-crowdsec@file"
+
+      - "traefik.http.middlewares.nextcloud.headers.referrerPolicy=no-referrer"
+      #- "traefik.http.middlewares.nextcloud.headers.SSLRedirect=true"
+      - "traefik.http.middlewares.nextcloud.headers.STSSeconds=315360000"
+      - "traefik.http.middlewares.nextcloud.headers.browserXSSFilter=true"
+      - "traefik.http.middlewares.nextcloud.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.nextcloud.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.nextcloud.headers.STSIncludeSubdomains=true"
+      - "traefik.http.middlewares.nextcloud.headers.STSPreload=true"
+      - "traefik.http.middlewares.nextcloud.headers.customFrameOptionsValue=SAMEORIGIN"
+      - "traefik.http.middlewares.nextcloud.headers.customResponseHeaders.X-Robots-Tag=noindex, nofollow"
+
+      - "traefik.http.middlewares.nextcloud-red.redirectregex.permanent=true"
+      - "traefik.http.middlewares.nextcloud-red.redirectregex.regex=https://(.*)/.well-known/(card|cal)dav"
+      - "traefik.http.middlewares.nextcloud-red.redirectregex.replacement=https://$1/remote.php/dav"
+      # HTTP Services
+      - "traefik.http.routers.nextcloud-rtr.service=nextcloud-svc"
+      - "traefik.http.services.nextcloud-svc.loadbalancer.server.port=80"
+

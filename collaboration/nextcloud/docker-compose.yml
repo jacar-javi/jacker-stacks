@@ -1,3 +1,5 @@
+version: "3.9"
+
 networks:
   default:
     driver: bridge
@@ -5,8 +7,8 @@ networks:
     external: true
 
 include:
-  - compose/mariadb.yml
   - compose/redis.yml
-  - compose/wordpress.yml
+  - compose/mariadb.yml
+  - compose/nextcloud.yml
   - compose/nginx.yml
-  - compose/wpcli.yml
+  

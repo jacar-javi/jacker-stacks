@@ -1,0 +1,29 @@
+services:
+  plex:
+    image: plexinc/pms-docker:latest
+    volumes:
+      - ../data/plex/config:/config
+    networks:
+      - traefik_proxy
+      - default
+    environment:
+      - PLEX_UID=$PUID
+      - PLEX_GID=$PGID
+      - TZ=$TZ
+      - CHANGE_CONFIG_DIR_OWNERSHIP=true
+      - VERSION=docker
+      - PLEX_CLAIM=$PLEX_CLAIM
+      - ADVERTISE_IP=http:/$PLEX_ADVERTISE_IP:$PLEX_ADVERTISE_PORT/
+    hostname: plex.$HOSTNAME
+    restart: unless-stopped
+    labels:
+      # Traefik configuration
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.plex-rtr.entrypoints=websecure"
+      - "traefik.http.routers.plex-rtr.rule=Host(`plex.$PUBLIC_FQDN`)"
+      # Middlewares
+      - "traefik.http.routers.plex-rtr.middlewares=chain-no-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.plex-rtr.service=plex-svc"
+      - "traefik.http.services.plex-svc.loadbalancer.server.port=32400"

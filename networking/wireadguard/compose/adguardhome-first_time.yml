@@ -1,0 +1,22 @@
+services:
+  adguardhome:
+    container_name: adguardhome
+    image: adguard/adguardhome:latest
+    restart: unless-stopped
+    networks:
+      default:
+        ipv4_address: $ADGUARD_IP
+      traefik_proxy:
+    volumes:
+      - ../data/adguard/work:/opt/adguardhome/work
+      - ../data/adguard/conf:/opt/adguardhome/conf
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.adguardhome-rtr.entrypoints=websecure"
+      - "traefik.http.routers.adguardhome-rtr.rule=Host(`adguardhome.$PUBLIC_FQDN`)"
+      # Middlewares
+      - "traefik.http.routers.adguardhome-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.adguardhome-rtr.service=adguardhome-svc"
+      - "traefik.http.services.adguardhome-svc.loadbalancer.server.port=3000"    # First run config

@@ -1,0 +1,12 @@
+services:
+  # https://github.com/meisnate12/Plex-Image-Cleanup
+  plexic:
+    image: meisnate12/plex-image-cleanup
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - TZ=$TZ #optional
+    volumes:
+      - ../data/plex-image-cleanup:/config
+      - ../data/plex/config/Library/Application Support/Plex Media Server:/plex
+    restart: unless-stopped

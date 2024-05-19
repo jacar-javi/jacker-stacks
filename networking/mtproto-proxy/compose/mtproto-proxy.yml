@@ -1,0 +1,14 @@
+services:
+  # Telegram Messenger MTProto proxy
+  # 
+  mtproto-proxy:
+    image: telegrammessenger/proxy:latest
+    volumes:
+      - ../data/config:/config
+    restart: unless-stopped
+    ports:
+      - $MTPROTO_PORT:443
+    networks:
+      - traefik_proxy
+    environment:
+      - SECRET=$SECRET

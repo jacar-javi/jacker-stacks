@@ -1,0 +1,15 @@
+# Jacker Stack: Jacker-PMS
+################################################
+#
+# https://github.com/ajkis/scripts/wiki/best-plex-rclone-mount-settings
+#
+
+
+networks:
+  default:
+    driver: bridge
+  traefik_proxy:
+    external: true
+
+include:
+  - compose/plex.yml

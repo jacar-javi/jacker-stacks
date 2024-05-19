@@ -1,0 +1,6 @@
+services:
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    volumes:
+      - $DATADIR/redis:/data

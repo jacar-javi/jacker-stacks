@@ -1,0 +1,8 @@
+# Jacker Stack: MTProto Proxy
+################################################
+
+networks:
+  traefik_proxy:
+    external: true
+include:
+  - compose/mtproto-proxy.yml

@@ -1,0 +1,15 @@
+version: "3.9"
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: $WG_DOCKER_NETWORK
+  traefik_proxy:
+    external: true
+
+include:
+  - compose/redis.yml
+  - compose/unbound.yml
+  - compose/adguardhome-first_time.yml

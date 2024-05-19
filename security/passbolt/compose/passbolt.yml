@@ -1,0 +1,39 @@
+services:
+  passbolt:
+    image: passbolt/passbolt:latest-ce
+    restart: unless-stopped
+    depends_on: 
+      mariadb: 
+        condition: service_healthy
+    networks:
+      - default
+      - traefik_proxy
+    environment:
+      APP_FULL_BASE_URL: https://passbolt.$PUBLIC_FQDN
+
+      DATASOURCES_DEFAULT_HOST: mariadb
+      DATASOURCES_DEFAULT_USERNAME: $MYSQL_USER
+      DATASOURCES_DEFAULT_PASSWORD:  $MYSQL_PASSWORD
+      DATASOURCES_DEFAULT_DATABASE: $MYSQL_DATABASE
+
+      EMAIL_DEFAULT_FROM_NAME: $EMAIL_DEFAULT_FROM_NAME
+      EMAIL_DEFAULT_FROM: $EMAIL_DEFAULT_FROM
+      EMAIL_TRANSPORT_DEFAULT_HOST: $EMAIL_TRANSPORT_DEFAULT_HOST
+      EMAIL_TRANSPORT_DEFAULT_PORT: $EMAIL_TRANSPORT_DEFAULT_PORT
+      EMAIL_TRANSPORT_DEFAULT_USERNAME: $EMAIL_TRANSPORT_DEFAULT_USERNAME
+      EMAIL_TRANSPORT_DEFAULT_PASSWORD: $EMAIL_TRANSPORT_DEFAULT_PASSWORD
+      EMAIL_TRANSPORT_DEFAULT_TLS: $EMAIL_TRANSPORT_DEFAULT_TLS
+
+    volumes:
+      - ../data/passbolt/gpg:/etc/passbolt/gpg
+      - ../data/passbolt/jwt:/etc/passbolt/jwt
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.passbolt-rtr.entrypoints=websecure"
+      - "traefik.http.routers.passbolt-rtr.rule=Host(`passbolt.$PUBLIC_FQDN`)"
+      # Middlewares
+      - "traefik.http.routers.passbolt-rtr.middlewares=chain-oauth@file"
+      # HTTP Services
+      - "traefik.http.routers.passbolt-rtr.service=passbolt-svc"
+      - "traefik.http.services.passbolt-svc.loadbalancer.server.port=80"

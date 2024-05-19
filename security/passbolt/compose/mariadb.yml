@@ -1,0 +1,21 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ../data/mysql:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MARIADB_DATABASE: $MYSQL_DATABASE
+      MARIADB_USER: $MYSQL_USER
+      MARIADB_PASSWORD: $MYSQL_PASSWORD
+      MARIADB_MYSQL_LOCALHOST_USER: true
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+    healthcheck:
+      retries: 10
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      timeout: 20s

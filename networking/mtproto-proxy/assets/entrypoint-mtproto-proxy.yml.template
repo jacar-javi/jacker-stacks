@@ -1,0 +1,3 @@
+entryPoints:
+  mtproto-proxy:
+    address: :$MTPROTO_PORT
